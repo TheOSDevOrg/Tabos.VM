@@ -1,6 +1,8 @@
 #include <atd/io.h>
 #include <flags.h>
 
+#ifndef STRAPV2
+
 #ifdef TABOS_KERNEL
     #include <Core/Common.h>
 #else
@@ -24,3 +26,5 @@ int ATD_printf(const char *fmt, ...)
         return r;
     #endif
 }
+
+#endif //STRAPV2

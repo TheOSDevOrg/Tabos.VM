@@ -10,29 +10,34 @@ TESTS:=$(shell find '$(TEST_DIR)' -iname *.c)
 C_OUTPUTS:=$(subst $(SRC_DIR),$(OBJECTS_OUT_DIR),$(C_SOURCES:.c=.c.o))
 TEST_OUTPUTS:=$(subst $(TEST_DIR),$(TEST_OUT_DIR),$(TESTS:.c=))
 
-CC=gcc
-C_FLAGS=-I$(INC_DIR)
+CC=i686-elf-gcc
+C_FLAGS=--std=c17 -I $(INC_DIR) -D STRAPV2
+
+LINKER=i686-elf-ld
+LINKER_FLAGS=-relocatable
 
 NAME=TABOS_VM
 COMMITID=$(shell git rev-parse HEAD)
 
 LIB_PATH:=$(LIB_OUT_DIR)/$(NAME).so
 
+DEFAULT_GOAL:=lib
+
 $(OBJECTS_OUT_DIR)/%.c.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
-	@$(CC) $< -o $@ $(C_FLAGS) -c
+	@$(CC) $(C_FLAGS) $< -o $@ -c -ffreestanding
 	@echo "$(CC)	$< >> $@"
 
 lib: $(C_OUTPUTS)
 	@mkdir -p $(LIB_OUT_DIR)
-	@gcc -shared -o $(LIB_PATH) $(C_OUTPUTS)
-	@echo "$(CC)	$(LIB_PATH) >> $@"
+	@$(LINKER) $(LINKER_FLAGS) $(C_OUTPUTS) -o $(LIB_PATH)
+	@echo "$(LINKER)	$(LIB_PATH) >> $@"
 
-%: $(TEST_DIR)/%.c lib
-	@mkdir -p $(TEST_OUT_DIR)
-	@$(CC) $< $(LIB_PATH) -o $(TEST_OUT_DIR)/$@ $(C_FLAGS)
-	@./$(TEST_OUT_DIR)/$@
+%: 
+	@echo "Tests are temporary disabled"
 
 clean:
 	@rm -rf $(OBJECTS_OUT_DIR)
 	@rm -rf $(TEST_OUT_DIR)
+
+.PRECIOUS: $(TEST_OUT_DIR)/%

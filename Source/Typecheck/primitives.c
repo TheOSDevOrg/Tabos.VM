@@ -54,7 +54,7 @@ TVM_type_t TVM_primitive_i32()
     };
 }
 
-// !!! TODO: @naparlmtorch ENABLE FLOATING POINT FLAG ON CPU (https://wiki.osdev.org/Floating_Point_Number) !!!
+// !!! TODO: ENABLE FLOATING POINT FLAG ON CPU (https://wiki.osdev.org/Floating_Point_Number) !!!
 
 bool TVM_primitive_f8_check(TVM_type_t *type, void *data) { return type->identifier == __VM_TYPECHECK_PRMITIVE_F8; }
 uint8_t * TVM_primitive_f8_apply(uint8_t *l, TVM_type_t *rt, void *r, TVM_operator_sign_t op)

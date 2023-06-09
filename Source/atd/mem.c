@@ -1,6 +1,8 @@
 #include <atd/mem.h>
 #include <atd/io.h>
 
+#ifndef STRAPV2
+
 #ifdef TABOS_KERNEL
     #include <Core/Common.h>
 #else
@@ -56,3 +58,5 @@ void ATD_free(void *d)
         free(d);
     #endif
 }
+
+#endif //STRAPV2
