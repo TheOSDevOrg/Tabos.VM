@@ -80,6 +80,12 @@ TVM_engine_processor_t TVM_build(TVM_module_t m, TVM_code_t c)
     return result;
 }
 
+void TVM_dispose(TVM_engine_processor_t *proc)
+{
+    ATD_LIST_uintptr_t_DISPOSE(proc->type_names_head);
+    ATD_LIST_uintptr_t_DISPOSE(proc->types_head);
+}
+
 void TVM_init()
 {
     if (__TVM_INSTR_MAP_INIT__) return;

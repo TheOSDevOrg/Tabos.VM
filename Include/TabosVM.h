@@ -50,6 +50,9 @@ bool TVM_exec(TVM_engine_processor_t *processor, bool runOne);
 /// @brief build the vm processor @param module the module @param code the parsed code from the module @return a new processor to execute bytecode
 TVM_engine_processor_t TVM_build(TVM_module_t module, TVM_code_t code);
 
+/// @brief disposes a vm processor instance @param proc the processor to dispose
+void TVM_dispose(TVM_engine_processor_t *proc);
+
 bool TVM_register_type(TVM_engine_processor_t *processor, const char *name, TVM_type_t *type);
 
 TVM_type_t * TVM_resolve_typeexpr(TVM_engine_processor_t *processor, const char *expr);

@@ -90,6 +90,16 @@
         ATD_free(current); \
         return r; \
     } \
+    void ATD_LIST_ ## type ## _DISPOSE(ATD_node_ ## type ## _t * head) \
+    { \
+        ATD_node_ ## type ## _t * current = head; \
+        while(current->next) { \
+            auto n = (ATD_node_ ## type ## _t *) current->next; \
+            ATD_free(current); \
+            current = n; \
+        } \
+        ATD_free(current); \
+    } \
     size_t ATD_LIST_ ## type ## _LENGTH(ATD_node_ ## type ## _t * head) \
     { \
         size_t i = 1; \
