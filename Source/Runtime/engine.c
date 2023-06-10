@@ -132,7 +132,7 @@ bool TVM_register_type(TVM_engine_processor_t *proc, const char *name, TVM_type_
 TVM_type_t * TVM_resolve_typeexpr(TVM_engine_processor_t *processor, const char *expr)
 {
     size_t i, sz = ATD_LIST_uintptr_t_LENGTH(processor->type_names_head);
-    ATD_printf("%d\n", sz);
+    
     for (i = 1; i < sz; i++)
     {
         if (ATD_strcmp(((char*)*ATD_LIST_uintptr_t_AT(processor->type_names_head, i)), expr) == 0)
