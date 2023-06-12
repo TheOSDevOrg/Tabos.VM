@@ -44,8 +44,11 @@ TVM_method_t TVM_get_method_n(TVM_module_t module, TVM_code_t code, const char *
 /// @brief map a bytecode with the given instruction callback @param code the bytecode @param instruction the instruction to associate the bytecode with
 void TVM_register_bytecode(uint16_t code, TVM_instruction_callback_t instruction);
 
-/// @brief execute the bytecode @param processor the processor derived from module and code @param runOne run one bytecode and return @return true if the execution should continue or false if it shouldn't
-bool TVM_exec(TVM_engine_processor_t *processor, bool runOne);
+/// @brief execute the bytecode @param processor the processor derived from module and code
+void TVM_exec(TVM_engine_processor_t *processor);
+
+/// @brief execute the bytecode @param processor the processor derived from module and code @return true if the execution should continue or false if it shouldn't
+bool TVM_exec_one(TVM_engine_processor_t *processor);
 
 /// @brief build the vm processor @param module the module @param code the parsed code from the module @return a new processor to execute bytecode
 TVM_engine_processor_t TVM_build(TVM_module_t module, TVM_code_t code);
@@ -53,8 +56,10 @@ TVM_engine_processor_t TVM_build(TVM_module_t module, TVM_code_t code);
 /// @brief disposes a vm processor instance @param proc the processor to dispose
 void TVM_dispose(TVM_engine_processor_t *proc);
 
+/// @brief registers a new tipe to a vm processor @param processor the vm processor @param name the type name @param type the type @return if the registration was successful
 bool TVM_register_type(TVM_engine_processor_t *processor, const char *name, TVM_type_t *type);
 
+/// @brief resolves a type expression @param processor the vm processor @param expr the expression (eg string | int) @return the pointer to the type if successful, NULL otherwise
 TVM_type_t * TVM_resolve_typeexpr(TVM_engine_processor_t *processor, const char *expr);
 
 /// @brief init TVM base instructions

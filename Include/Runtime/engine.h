@@ -20,7 +20,7 @@ typedef struct TVM_engine_processor {
     uintptr_t vars_head;
     uintptr_t methods_head;
 
-    uint32_t call_stack;
+    uintptr_t call_stack;
 
 } TVM_engine_processor_t;
 

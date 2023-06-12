@@ -20,6 +20,9 @@ bool CALLMS(TVM_engine_processor_t *proc)
     const char *IDENTIFIER = (proc->module.base + proc->module.body.code_start + proc->code.bytecode_start) + proc->IP;
     TVM_method_t method = TVM_get_method_n(proc->module, proc->code, IDENTIFIER);
 
+    // push current instruction pointer and
+    // jump to the destination
+    *ATD_LIST_uintptr_t_PUSH(proc->call_stack) = proc->IP + ATD_strlen(IDENTIFIER) + 1;
     proc->IP = method.offset;
 
     return true;
@@ -29,6 +32,9 @@ bool CALLM8(TVM_engine_processor_t *proc)
     uint8_t IDENTIFIER = TVM_ENGINE_PROCESSOR_CYCLE8(proc);
     TVM_method_t method = TVM_get_method_i(proc->module, proc->code, IDENTIFIER);
 
+    // push current instruction pointer and
+    // jump to the destination
+    *ATD_LIST_uintptr_t_PUSH(proc->call_stack) = proc->IP;
     proc->IP = method.offset;
 
     return true;
@@ -38,6 +44,9 @@ bool CALLM16(TVM_engine_processor_t *proc)
     uint16_t IDENTIFIER = TVM_ENGINE_PROCESSOR_CYCLE16(proc);
     TVM_method_t method = TVM_get_method_i(proc->module, proc->code, IDENTIFIER);
 
+    // push current instruction pointer and
+    // jump to the destination
+    *ATD_LIST_uintptr_t_PUSH(proc->call_stack) = proc->IP;
     proc->IP = method.offset;
 
     return true;
@@ -47,8 +56,19 @@ bool CALLM32(TVM_engine_processor_t *proc)
     uint32_t IDENTIFIER = TVM_ENGINE_PROCESSOR_CYCLE32(proc);
     TVM_method_t method = TVM_get_method_i(proc->module, proc->code, IDENTIFIER);
 
+    // push current instruction pointer and
+    // jump to the destination
+    *ATD_LIST_uintptr_t_PUSH(proc->call_stack) = proc->IP;
     proc->IP = method.offset;
 
+    return true;
+}
+bool RET(TVM_engine_processor_t *proc)
+{
+    uintptr_t destIP = ATD_LIST_uintptr_t_POP(proc->call_stack);
+
+    // jump back to caller
+    proc->IP = (uint32_t)destIP;
     return true;
 }
 #pragma endregion
@@ -75,7 +95,8 @@ TVM_engine_processor_t TVM_build(TVM_module_t m, TVM_code_t c)
         .code = c,
         .IP = TVM_get_method_n(m, c, "main").offset,
         .type_names_head = ATD_LIST_uintptr_t_MAKE(),
-        .types_head = ATD_LIST_uintptr_t_MAKE()
+        .types_head = ATD_LIST_uintptr_t_MAKE(),
+        .call_stack = ATD_LIST_uintptr_t_MAKE()
     };
     return result;
 }
@@ -84,6 +105,7 @@ void TVM_dispose(TVM_engine_processor_t *proc)
 {
     ATD_LIST_uintptr_t_DISPOSE(proc->type_names_head);
     ATD_LIST_uintptr_t_DISPOSE(proc->types_head);
+    ATD_LIST_uintptr_t_DISPOSE(proc->call_stack);
 }
 
 void TVM_init()
@@ -96,20 +118,16 @@ void TVM_init()
     TVM_register_bytecode(3, CALLM16);
     TVM_register_bytecode(4, CALLM32);
     TVM_register_bytecode(5, DEBUG);
+    TVM_register_bytecode(6, RET);
 
     __TVM_INSTR_MAP_INIT__ = true;
 }
 
-bool TVM_exec(TVM_engine_processor_t *proc, bool runOne)
+bool TVM_exec_one(TVM_engine_processor_t *proc)
 {
-    // inits
-    bool result = false;
     TVM_instruction_callback_t callback = NULL;
     uint16_t byc = 0;
 
-    // loop
-    __$TVM_EXEC_LOOP:
-    
     // get the bytecode
     byc = TVM_ENGINE_PROCESSOR_CYCLE16(proc);
     callback = __TVM_INSTR_MAP__[byc];
@@ -117,10 +135,13 @@ bool TVM_exec(TVM_engine_processor_t *proc, bool runOne)
     // end instruction
     if (byc == 0xffff) return false;
 
-    if (callback) result = callback(proc);
-    
-    if ((!result && byc) || runOne) return result;
-    goto __$TVM_EXEC_LOOP;
+    // execute the instruction
+    if (callback) return callback(proc);
+}
+void TVM_exec(TVM_engine_processor_t *proc)
+{
+    // execute the program until interrupted
+    while (TVM_exec_one(proc)) ;
 }
 
 bool TVM_register_type(TVM_engine_processor_t *proc, const char *name, TVM_type_t *type)

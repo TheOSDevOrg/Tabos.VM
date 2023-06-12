@@ -52,7 +52,6 @@
     { \
         ATD_node_ ## type ## _t * current = head; \
         while(current->next) { \
-            if (!current->next) return initData; \
             current = (ATD_node_ ## type ## _t *) current->next; \
         } \
         ((ATD_node_ ## type ## _t *) current->prev)->next = NULL; \
