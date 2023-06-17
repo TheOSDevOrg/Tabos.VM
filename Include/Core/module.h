@@ -45,6 +45,8 @@ typedef struct TVM_variable
 {
     char *name;
     char *type;
+
+	size_t index;
 } TVM_variable_t;
 /// @brief required by TVM_get_method to enclose a method
 typedef struct TVM_method

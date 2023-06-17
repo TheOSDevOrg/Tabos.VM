@@ -96,8 +96,11 @@ TVM_engine_processor_t TVM_build(TVM_module_t m, TVM_code_t c)
         .IP = TVM_get_method_n(m, c, "main").offset,
         .type_names_head = ATD_LIST_uintptr_t_MAKE(),
         .types_head = ATD_LIST_uintptr_t_MAKE(),
-        .call_stack = ATD_LIST_uintptr_t_MAKE()
+        .call_stack = ATD_LIST_uintptr_t_MAKE(),
+        .vars_head = ATD_LIST_uintptr_t_MAKE(),
     };
+	size_t vars = TVM_get_variables_num(m);
+	for (int i = 0; i < vars; i++) ATD_LIST_uintptr_t_PUSH(vars);
     return result;
 }
 
@@ -106,6 +109,7 @@ void TVM_dispose(TVM_engine_processor_t *proc)
     ATD_LIST_uintptr_t_DISPOSE(proc->type_names_head);
     ATD_LIST_uintptr_t_DISPOSE(proc->types_head);
     ATD_LIST_uintptr_t_DISPOSE(proc->call_stack);
+    ATD_LIST_uintptr_t_DISPOSE(proc->vars_head);
 }
 
 void TVM_init()
@@ -120,7 +124,7 @@ void TVM_init()
     TVM_register_bytecode(5, DEBUG);
     TVM_register_bytecode(6, RET);
 
-    __TVM_INSTR_MAP_INIT__ = true;
+__TVM_INSTR_MAP_INIT__ = true;
 }
 
 bool TVM_exec_one(TVM_engine_processor_t *proc)
@@ -161,4 +165,13 @@ TVM_type_t * TVM_resolve_typeexpr(TVM_engine_processor_t *processor, const char 
     }
 
     return NULL;
+}
+
+TVM_engine_var_t TVM_variable_n(TVM_engine_processor_t *processor, const char name[])
+{
+	
+}
+TVM_engine_var_t TVM_variable_i(TVM_engine_processor_t *processor, int index)
+{
+	
 }

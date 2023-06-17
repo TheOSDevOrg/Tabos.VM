@@ -10,22 +10,27 @@ TVM_variable_t TVM_VAR_PARSE(uintptr_t ptr)
 
     return result;
 }
-int TVM_VAR_LEN(uintptr_t ptr)
-{
+int TVM_VAR_LEN(uintptr_t ptr) {
     size_t namesz = ATD_strlen((const char *) ptr);
     size_t typesz = ATD_strlen((const char *) ptr+namesz+1);
 
     return typesz+namesz;
 }
-TVM_variable_t TVM_VAR_AT(TVM_module_t m, size_t ind)
-{
+TVM_variable_t TVM_VAR_AT(TVM_module_t m, size_t ind) {
     TVM_variable_t result = {0};
     size_t i, x = 0;
-    for (i = m.body.vars_start; i < m.body.vars_end; i++)
-    {
+	
+	if (ind >= TVM_get_variables_num(m)) {
+		result.index = -1;
+		return result;
+	}
+    
+	for (i = m.body.vars_start; i < m.body.vars_end; i++) {
         if (x == ind) return result = TVM_VAR_PARSE((uintptr_t)m.base + i);
         else i += TVM_VAR_LEN((uintptr_t)m.base + i) + 1, x++;
     }
+
+	result.index = ind;
     return result;
 }
 
@@ -127,19 +132,21 @@ TVM_code_t TVM_read(TVM_module_t module)
 }
 
 TVM_variable_t TVM_get_var_i(TVM_module_t module, size_t index) { return TVM_VAR_AT(module, index); }
-TVM_variable_t TVM_get_var_n(TVM_module_t module, const char *name)
-{
+TVM_variable_t TVM_get_var_n(TVM_module_t module, const char *name) {
     int i = 0;
+	size_t max = TVM_get_variables_num(module);
     TVM_variable_t current = TVM_VAR_AT(module, i);
 
-    while (*current.name)
-    {
+    while (i < max) {
         if (ATD_strcmp(current.name, name) == 0) return current;
         current = TVM_VAR_AT(module, ++i);
     }
 
-    return current;
+    return (TVM_variable_t) {
+		.index = -1
+	};
 }
+
 TVM_method_t TVM_get_method_i(TVM_module_t module, TVM_code_t code, size_t index) { return TVM_METHOD_AT(module, code, index); }
 TVM_method_t TVM_get_method_n(TVM_module_t module, TVM_code_t code, const char *name)
 {
@@ -153,4 +160,16 @@ TVM_method_t TVM_get_method_n(TVM_module_t module, TVM_code_t code, const char *
     }
 
     return current;
+}
+
+size_t TVM_get_variables_num(TVM_module_t module)
+{
+	uintptr_t i = module.body.vars_start;
+	size_t x = 0;
+
+	while (i < module.body.vars_end) {
+		i += TVM_VAR_LEN((uintptr_t)module.base + i) + 2;
+		x++;
+	}
+	return x;
 }

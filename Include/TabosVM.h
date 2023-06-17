@@ -12,6 +12,7 @@
 #include <Core/module.h>
 #include <Runtime/engine.h>
 #include <Typecheck/type.h>
+#include <Runtime/variable.h>
 
 #include <atd/mem.h>
 #include <atd/io.h>
@@ -61,6 +62,18 @@ bool TVM_register_type(TVM_engine_processor_t *processor, const char *name, TVM_
 
 /// @brief resolves a type expression @param processor the vm processor @param expr the expression (eg string | int) @return the pointer to the type if successful, NULL otherwise
 TVM_type_t * TVM_resolve_typeexpr(TVM_engine_processor_t *processor, const char *expr);
+
+/// @brief get allocated variable by name @param name the variable name @return the allocated variable
+TVM_engine_var_t TVM_variable_n(TVM_engine_processor_t *processor, const char name[]);
+
+/// @brief get allocated variable by name @param index the variable index @return the allocated variable
+TVM_engine_var_t TVM_variable_i(TVM_engine_processor_t *processor, int index);
+
+/// @brief get the number of variables in a module @param module the module @returns the number of variables defined in the module
+size_t TVM_get_variables_num(TVM_module_t module);
+
+/// @brief get the number of methods in a module @param module the module @returns the number of methods defined in the module
+size_t TVM_get_methods_num(TVM_module_t module);
 
 /// @brief init TVM base instructions
 void TVM_init();
