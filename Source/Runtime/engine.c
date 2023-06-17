@@ -167,11 +167,30 @@ TVM_type_t * TVM_resolve_typeexpr(TVM_engine_processor_t *processor, const char 
     return NULL;
 }
 
-TVM_engine_var_t TVM_variable_n(TVM_engine_processor_t *processor, const char name[])
-{
-	
+TVM_engine_var_t TVM_ENGINE_VAR_BUILD(TVM_engine_processor_t *processor, TVM_variable_t var) {
+	// check if variable is valid
+	if (var.index == -1) return (TVM_engine_var_t) {
+		.pointer = NULL
+	};
+	// find pointer
+	uintptr_t ptr = *ATD_LIST_uintptr_t_AT(processor->vars_head, var.index);
+
+	// return the var with its pointer
+	return (TVM_engine_var_t) {
+		.name = var.name,
+		.type = var.type,
+
+		.pointer = ptr
+	};
 }
-TVM_engine_var_t TVM_variable_i(TVM_engine_processor_t *processor, int index)
-{
-	
+
+TVM_engine_var_t TVM_variable_n(TVM_engine_processor_t *processor, const char name[]) {
+	// resolve var name and build the engine variable
+	TVM_variable_t var = TVM_get_var_n(processor->module, name);
+	return TVM_ENGINE_VAR_BUILD(processor, var);
+}
+TVM_engine_var_t TVM_variable_i(TVM_engine_processor_t *processor, size_t index) {
+	// resolve var name and build the engine variable
+	TVM_variable_t var = TVM_get_var_i(processor->module, index);
+	return TVM_ENGINE_VAR_BUILD(processor, var);
 }

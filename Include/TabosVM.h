@@ -67,7 +67,7 @@ TVM_type_t * TVM_resolve_typeexpr(TVM_engine_processor_t *processor, const char 
 TVM_engine_var_t TVM_variable_n(TVM_engine_processor_t *processor, const char name[]);
 
 /// @brief get allocated variable by name @param index the variable index @return the allocated variable
-TVM_engine_var_t TVM_variable_i(TVM_engine_processor_t *processor, int index);
+TVM_engine_var_t TVM_variable_i(TVM_engine_processor_t *processor, size_t index);
 
 /// @brief get the number of variables in a module @param module the module @returns the number of variables defined in the module
 size_t TVM_get_variables_num(TVM_module_t module);
